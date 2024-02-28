@@ -42,11 +42,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 	;;; Script controled variables
-		;(def nrows 6)								; number of rows
+		;(def nrows 4)								; number of rows
 		;(def ncols 6)								; number of columns
-		;(def thumb-style "tightly")	; toggles between "default", "mini", "cf" and "tightly" thumb cluster
-		;(def pinky-15u false)          ; controls whether the outer column uses 1.5u keys
-		;(def extra-row false)					; adds an extra bottom row to the outer column
+		;(def thumb-style "default")	; toggles between "default", "mini", "cf" and "tightly" thumb cluster
+		;(def pinky-15u true)          ; controls whether the outer column uses 1.5u keys
+		;(def extra-row true)					; adds an extra bottom row to the outer column
 		;(def plate-outside false)			; if false then the plate will be inset (true for cool ligthning effect)
 		;(def print-type "fdm")				; ("fdm" or "msla") type of printing to determine heat insert holes
 	;;; Hand rest parameters
@@ -67,7 +67,7 @@
 		(def pad-z 1.5) 	; pad depth on plate
 		(def text-z 1.5)	; text depth
 	;;; General parameters
-		(def custom false) 						; Use this to write the keyboard to "things/custom"
+		(def custom true) 						; Use this to write the keyboard to "things/custom"
 		(def create-side-nubs? false)	; true for Cherry MX and Gateron; false for Kailh and simillar
 		(def hot-swap true) 					; If you want hot swap sockets enable this
 		(def show-caps false)					; Show keycaps on the keyboard (not working for all sizes)
@@ -1862,8 +1862,8 @@
 		(union
 			(translate [0 0 10]
 				(minkowski
-				(binding [*fn* 100] (cylinder 0.95 10))
-				(cube 7.34 1.56 10)))
+					(binding [*fn* 100] (cylinder 0.95 10))
+					(cube 7.34 1.56 10)))
 			(translate [0 1.91 10.7]
 				(cube 12.3 4.18 18.6))
 			(translate [-5.62 -0.58 10.7]
@@ -1959,6 +1959,251 @@
 			(def ic-fixture
 				ic-fixture-pre-cut)))
 
+
+	;;; START other ic holders
+	;;; HERE
+	;;;
+
+
+	; blank ic holder, for promicro or smaller
+	(def ic-blank
+		(difference
+			(union
+				; case wall
+				(translate [0 -2.4 4.35]
+					(cube 28.2 2.8 15.2) ;28.2
+					(translate [0 0 0]
+						(cube 30.9 0.9 15.2)) ;30.9
+				)
+				; component insert space
+				(translate [0 -25 5]
+					(cube 28.2 48 10))		
+			)
+		)
+	)
+
+	; usbc cutout from blank
+	(def ic-usbc-cut
+		(union
+			; cutout for pcb
+			(union
+				(translate [0 -21.8 0]
+					(cube 16.5 36 50))
+				(translate [0 -21.8 12]
+					(cube 18.3 36 10))
+				(translate [0 -21.45 8]
+					(cube 18.3 38.5 2))
+				(translate [0 -3.6 6.25]
+					(cube 16.5 2.8 1.5))
+				;cube and circle for heat insert
+				(translate [0 -35 11]
+					(cube 18.3 30 8))
+				(translate [0 -44.4 0]
+					(binding [*fn* 100] (cylinder 2.1 100)))
+			)
+			; cutout for USB-C connector
+			(union
+				(translate [0 0 5.4]
+					(rotate [(deg2rad 90) 0 0]
+						(minkowski
+							(binding [*fn* 100] (cylinder 0.95 10))
+							(cube 7.34 1.56 10)
+						)
+					)
+				)
+			)
+		)
+	)
+
+	; trrs cutout from blank
+	(def ic-trrs-cut
+		; trrs insert
+		(union
+			(translate [10 -11.8 7.4]
+				(cube 6.1 16 10)
+			)
+			(translate [10 -10.6 5.4]
+				(cube 6.1 17.5 6)
+			)
+			;hole for the cover
+			(translate [10 -30 8.5]
+				(cube 6.1 40 3))
+			(translate [8 -42 8.5]
+				(cube 10 14 3))
+
+			(translate [10 -5 5.4]
+				(rotate [(deg2rad 90) 0 0]
+					(binding [*fn* 50] (cylinder 2.85 10)))
+			)
+		)
+	)
+
+	; a insert to hold everything from falling out with trrs and promicro
+	(def ic-cover-trrs
+		(translate [0 0 0]
+			(difference
+				(union
+					; main ic holding cube
+					(translate [0 7.25 0]
+					(cube 18.2 30 3))
+					; side lever
+					(translate [12.65 9.075 0]
+						(cube 6 33.65 3))
+					; small protrusion connecting side lever and main ic holder
+					(translate [9.4 -1.25 0]
+						(cube 0.6 13 3))
+					; the thing that keeps trrs connector from sliding back
+					(translate [12.65 23.45 -3.85]
+						(cube 6 3.9 4.7))
+				)
+				(union
+					(translate [0 7 0]
+						(translate [0 0 -1]
+								(cube 18.2 3 1))
+						(translate [6.1 0 0]
+							(cube 6 3 10))
+						(translate [-6.1 0 0]
+							(cube 6 3 10))
+						(translate [0 16.5 0]
+							(cube 18.2 30 3))
+					)
+					; screw hole
+					(translate [0 -2.75 0]
+						(binding [*fn* 100] (cylinder [1.75 3.25] 3)))
+				)
+			)
+		)
+	)
+
+	; a insert to hold everything from falling out, xiao seeeduino
+	(def ic-cover-xiao
+		(translate [0 0 0]
+			(difference
+				(union
+					; main ic holding cube
+					(translate [0 7.25 0]
+					(cube 18.2 30 3))
+					
+				)
+				(union
+					; modify Y value for IC size
+					(translate [0 19.3 0]
+						(translate [0 0 -1]
+								(cube 18.2 3 1))
+						(translate [6.1 0 0]
+							(cube 6 3 10))
+						(translate [-6.1 0 0]
+							(cube 6 3 10))
+						(translate [0 16.5 0]
+							(cube 18.2 30 3))
+					)
+					; screw hole
+					(translate [0 -2.75 0]
+						(binding [*fn* 100] (cylinder [1.75 3.25] 3)))
+				)
+			)
+		)
+	)
+
+	; ic-ble
+	(def ic-ble
+		(difference
+			ic-blank
+			ic-usbc-cut
+		)
+	)
+
+	; ic-pro-trrs
+	(def ic-pro-trrs
+		(difference
+			ic-blank
+			(translate [-4.45 0 0]
+				ic-usbc-cut)
+			(translate [-1.75 0 0]
+				ic-trrs-cut)
+		)
+	)
+
+	; fix to compensate insert wall thickness for various sizes
+	(if (= nrows 4)
+		(def ic-ble-fix
+			(difference
+				ic-ble
+				(translate [0 -3.7 -1.625]
+					(cube 28.2 0.2 3.25)))))
+	(if (= nrows 5)
+		(def ic-ble-fix
+			(union
+				ic-ble
+				(translate [0 -4.075 -1.625]
+					(cube 28.2 0.55 3.25)))))
+	(if (= nrows 6)
+		(def ic-ble-fix
+			(union
+				ic-ble
+				(translate [0 -4.325 -1.625]
+					(cube 28.2 1.05 3.25)))))
+	
+	; ic fixture based on plate outside or inside
+	(if plate-outside
+		(do
+			(def ic-ble-fin
+				(difference
+					ic-ble-fix
+					(translate [0 0 -1.625]
+						(cube 200 200 3.25)))))
+		(do
+			(def ic-ble-fin
+				ic-ble-fix)))
+
+	; fix to compensate insert wall thickness for various sizes
+	(if (= nrows 4)
+		(def ic-pro-trrs-fix
+			(difference
+				ic-pro-trrs
+				(translate [0 -3.7 -1.625]
+					(cube 28.2 0.2 3.25)))))
+	(if (= nrows 5)
+		(def ic-pro-trrs-fix
+			(union
+				ic-pro-trrs
+				(translate [0 -4.075 -1.625]
+					(cube 28.2 0.55 3.25)))))
+	(if (= nrows 6)
+		(def ic-pro-trrs-fix
+			(union
+				ic-pro-trrs
+				(translate [0 -4.325 -1.625]
+					(cube 28.2 1.05 3.25)))))
+	
+	; ic fixture based on plate outside or inside
+	(if plate-outside
+		(do
+			(def ic-pro-trrs-fin
+				(difference
+					ic-pro-trrs-fix
+					(translate [0 0 -1.625]
+						(cube 200 200 3.25)))))
+		(do
+			(def ic-pro-trrs-fin
+				ic-pro-trrs-fix)))
+
+	(spit "things/custom/ic-ble.scad"
+		(write-scad
+			ic-ble-fin))
+
+	(spit "things/custom/ic-pro-trrs.scad"
+		(write-scad
+			ic-pro-trrs-fin))
+
+	(spit "things/custom/ic-cover-trrs.scad"
+		(write-scad
+			ic-cover-trrs))
+
+	(spit "things/custom/ic-cover-xiao.scad"
+		(write-scad
+			ic-cover-xiao))
+		
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;## Hand rest generation ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
